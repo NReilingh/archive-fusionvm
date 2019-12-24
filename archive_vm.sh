@@ -11,14 +11,18 @@ fi
 # We need an absolute path for the source.
 SRCPATH=$(cd "$1"; pwd)
 
+echo "SRCPATH is $SRCPATH"
+
 i=0
 
 while true; do
 	# Test whether running .vmx files are inside our path.
 	running=$(vmrun list | grep "$SRCPATH")
 
+	echo "Current running VM list is $running"
+
 	# If no VMs are running, we can continue.
-	[ ! -z "$running" ] && break
+	[ -z "$running" ] && break
 
 	i=$[ $i + 1 ]
 	if [ $i -gt 3 ]; then
@@ -26,11 +30,18 @@ while true; do
 		exit 1
 	fi
 
-	for vmx in "$running"; do
+	echo "Attempting to suspend VMs"
+
+	xIFS=$IFS
+	IFS=$'\n'
+	for vmx in $running; do
+		echo "Suspending $vmx"
 		vmrun suspend "$vmx"
 	done
+	IFS=$xIFS
 done
 
 # Create a compressed read-only .dmg. HFS+ seems to be smaller than APFS.
+echo "Creating disk image"
 hdiutil create -srcfolder "$1" "$2" -fs HFS+
 
