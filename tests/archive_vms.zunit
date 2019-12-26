@@ -1,0 +1,61 @@
+#!/usr/bin/env zunit
+
+@setup {
+  touch tests/_support/decoy_file
+  mkdir tests/_support/decoy_dir
+}
+
+@teardown {
+  rm tests/_support/decoy_file
+  rm -r tests/_support/decoy_dir
+  rm tests/_support/out.dmg
+}
+
+@test 'Exit with error when no arguments are supplied' {
+  run archive_vms.zsh
+
+  assert $state equals 3
+}
+
+@test 'Exit with error when no second argument is supplied' {
+  run archive_vms.zsh tests/_support/decoy_dir
+
+  assert $state equals 3
+}
+
+@test 'Exit with error when first argument path does not exist' {
+  run archive_vms.zsh /zxcvbn/foo/bar/baz/bluth tests/_support/out.dmg
+
+  assert $state equals 3
+}
+
+@test 'Exit with error when first argument path is a file' {
+  run archive_vms.zsh tests/_support/decoy_file tests/_support/out.dmg
+
+  assert $state equals 3
+}
+
+@test 'First argument relative path is expanded to absolute path' {
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+}
+
+@test 'Running VMs inside path are passed to suspend command' {
+  skip 'Not implemented'
+}
+
+@test 'Suspend command is not invoked if no VMs are running' {
+  skip 'Not implemented'
+}
+
+@test 'Suspend command is attempted up to three times' {
+  skip 'Not implemented'
+}
+
+@test 'Exit with failure if VMs are not suspended by fourth attempt' {
+  skip 'Not implemented'
+}
+
+@test 'hdiutil create is executed' {
+  skip 'Not implemented'
+}
+

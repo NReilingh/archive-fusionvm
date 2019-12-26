@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+
+# Add project dir to PATH so we can easily run commands.
+export PATH="$PWD:$PATH"
+
+# Add _support dir to PATH for mocks and shit.
+#export PATH="$PWD/tests/_support:$PATH"
+

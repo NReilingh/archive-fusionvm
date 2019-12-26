@@ -1,8 +1,12 @@
-#!/bin/sh
+#!/bin/zsh
 
 if [ ! -d "$1" ]; then
 	echo "Argument 1 must be a directory path to archive."
-	exit 1
+	exit 3
+fi
+if [ -z "$2" ]; then
+	echo "Argument 2 must be a path to the desired output file."
+	exit 3
 fi
 
 # $1 is the path to a folder of VMs -- this will be sent directly to hdiutil
@@ -27,7 +31,7 @@ while true; do
 	i=$[ $i + 1 ]
 	if [ $i -gt 3 ]; then
 		echo "VMs were not suspended after three tries."
-		exit 1
+		exit 4
 	fi
 
 	echo "Attempting to suspend VMs"
