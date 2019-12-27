@@ -8,7 +8,7 @@
 @teardown {
   rm tests/_support/decoy_file
   rm -r tests/_support/decoy_dir
-  rm tests/_support/out.dmg
+  [ -f tests/_support/out.dmg ] && rm tests/_support/out.dmg
 }
 
 @test 'Exit with error when no arguments are supplied' {
@@ -35,12 +35,28 @@
   assert $state equals 3
 }
 
-@test 'First argument relative path is expanded to absolute path' {
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+@test 'Running VMs inside path are passed to suspend command' {
+  # Mock vmrun list to output multiple paths
+  # Output three paths:
+  # $PWD/tests/support/decoy_dir/examplevmone.vmx
+  # $PWD/tests/support/decoy_dir/examplevmtwo.vmx
+  # $PWD/tests/support/some_other_dir/examplevm.vmx
+  #
+  # Above will be a here-string that goes to a file to be output by mock
+  #
+  # touch tests/_support/
+  run which vmrun
+  run which hdiutil
+
+  run archive_vms.zsh "$PWD/tests/support/decoy_dir" tests/_support/out.dmg
+
+  # Expect vmrun suspend to receive examplevmone.vmx and examplevmtwo.vmx
+  # Mock vmrun suspend to record calls and arguments
+  skip 'Not implemented'
 }
 
-@test 'Running VMs inside path are passed to suspend command' {
-  skip 'Not implemented'
+@test 'First argument relative path is expanded to absolute path' {
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
 }
 
 @test 'Suspend command is not invoked if no VMs are running' {

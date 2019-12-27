@@ -4,5 +4,5 @@
 export PATH="$PWD:$PATH"
 
 # Add _support dir to PATH for mocks and shit.
-#export PATH="$PWD/tests/_support:$PATH"
+export PATH="$PWD/tests/_support:$PATH"
 
