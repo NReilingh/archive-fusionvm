@@ -1,3 +1,5 @@
 #!/usr/bin/env zsh
 
+print -l $@ > tests/_support/hdiutil.out
+
 exit 0

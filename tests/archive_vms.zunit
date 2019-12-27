@@ -1,14 +1,14 @@
 #!/usr/bin/env zunit
 
 @setup {
-  touch tests/_support/decoy_file
-  mkdir tests/_support/decoy_dir
+  [ -f tests/_support/decoy_file ] || touch tests/_support/decoy_file
+  [ -d tests/_support/decoy_dir ] || mkdir tests/_support/decoy_dir
 }
 
 @teardown {
   rm tests/_support/decoy_file
   rm -r tests/_support/decoy_dir
-  [ -f tests/_support/out.dmg ] && rm tests/_support/out.dmg || true
+  [ ! -f tests/_support/hdiutil.out ] || rm tests/_support/hdiutil.out
 }
 
 @test 'Exit with error when no arguments are supplied' {
@@ -29,6 +29,15 @@
   assert $state equals 3
 }
 
+@test 'First argument relative path is expanded to absolute path' {
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+
+  # Filter run output to line that begins with SRCPATH.
+  srcpath=(${(M)lines:#SRCPATH*})
+
+  assert $srcpath contains "$PWD/tests/_support/decoy_dir"
+}
+
 @test 'Exit with error when first argument path is a file' {
   run archive_vms.zsh tests/_support/decoy_file tests/_support/out.dmg
 
@@ -45,8 +54,6 @@
   # Above will be a here-string that goes to a file to be output by mock
   #
   # touch tests/_support/
-  run which vmrun
-  run which hdiutil
 
   run archive_vms.zsh "$PWD/tests/support/decoy_dir" tests/_support/out.dmg
 
@@ -55,9 +62,6 @@
   skip 'Not implemented'
 }
 
-@test 'First argument relative path is expanded to absolute path' {
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
-}
 
 @test 'Suspend command is not invoked if no VMs are running' {
   skip 'Not implemented'
@@ -72,6 +76,19 @@
 }
 
 @test 'hdiutil create is executed' {
-  skip 'Not implemented'
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+
+  assert "$PWD/tests/_support/hdiutil.out" exists
 }
 
+@test 'hdiutil create is passed both input arguments' {
+  arg1=tests/_support/decoy_dir
+  arg2=tests/_support/out.dmg
+
+  run archive_vms.zsh $arg1 $arg2
+
+  hdiutilout=(${(@f)"$(<tests/_support/hdiutil.out)"})
+
+  assert $arg1 in $hdiutilout
+  assert $arg2 in $hdiutilout
+}
