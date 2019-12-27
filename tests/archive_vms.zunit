@@ -3,12 +3,15 @@
 @setup {
   [ -f tests/_support/decoy_file ] || touch tests/_support/decoy_file
   [ -d tests/_support/decoy_dir ] || mkdir tests/_support/decoy_dir
+  [ ! -f tests/_support/hdiutil.calls ] || rm tests/_support/hdiutil.calls
+  [ ! -f tests/_support/vmrun_suspend.calls ] || rm tests/_support/vmrun_suspend.calls
 }
 
 @teardown {
   rm tests/_support/decoy_file
   rm -r tests/_support/decoy_dir
-  [ ! -f tests/_support/hdiutil.out ] || rm tests/_support/hdiutil.out
+  [ ! -f tests/_support/hdiutil.calls ] || rm tests/_support/hdiutil.calls
+  [ ! -f tests/_support/vmrun_suspend.calls ] || rm tests/_support/vmrun_suspend.calls
 }
 
 @test 'Exit with error when no arguments are supplied' {
@@ -45,6 +48,8 @@
 }
 
 @test 'Running VMs inside path are passed to suspend command' {
+  vmone="$PWD/tests/support/decoy_dir/examplevmone.vmx"
+  vmtwo="$PWD/tests/support/decoy_dir/examplevmtwo.vmx"
   # Mock vmrun list to output multiple paths
   # Output three paths:
   # $PWD/tests/support/decoy_dir/examplevmone.vmx
@@ -55,13 +60,15 @@
   #
   # touch tests/_support/
 
-  run archive_vms.zsh "$PWD/tests/support/decoy_dir" tests/_support/out.dmg
+  run archive_vms.zsh tests/support/decoy_dir tests/_support/out.dmg
 
   # Expect vmrun suspend to receive examplevmone.vmx and examplevmtwo.vmx
   # Mock vmrun suspend to record calls and arguments
-  skip 'Not implemented'
-}
 
+  suspendout=(${(@f)"$(<tests/_support/vmrun_suspend.calls)"})
+  assert $vmone in $suspendout
+  assert $vmtwo in $suspendout
+}
 
 @test 'Suspend command is not invoked if no VMs are running' {
   skip 'Not implemented'
@@ -78,7 +85,7 @@
 @test 'hdiutil create is executed' {
   run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
 
-  assert "$PWD/tests/_support/hdiutil.out" exists
+  assert "$PWD/tests/_support/hdiutil.calls" exists
 }
 
 @test 'hdiutil create is passed both input arguments' {
@@ -87,8 +94,9 @@
 
   run archive_vms.zsh $arg1 $arg2
 
-  hdiutilout=(${(@f)"$(<tests/_support/hdiutil.out)"})
+  hdiutilout=(${(@f)"$(<tests/_support/hdiutil.calls)"})
 
   assert $arg1 in $hdiutilout
   assert $arg2 in $hdiutilout
 }
+

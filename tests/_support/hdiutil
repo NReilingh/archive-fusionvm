@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
 
-print -l $@ > tests/_support/hdiutil.out
+print -l $@ > tests/_support/hdiutil.calls
 
 exit 0

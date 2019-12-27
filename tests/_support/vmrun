@@ -1,3 +1,30 @@
 #!/usr/bin/env zsh
 
-exit 0
+subcmd=$1; shift
+
+_list() {
+	# Mock data files in the support directory are output in sequence.
+	for file in tests/_support/vmrun_list_*(.); do
+		if [[ -v previous ]]; then
+			mv $file $previous
+		else
+			cat $file
+			rm $file
+		fi
+		previous=$file
+	done
+}
+
+_suspend() {
+	print -l $@ >> tests/_support/vmrun_suspend.calls
+}
+
+case $subcmd in
+('list')
+	_list $@
+	;;
+('suspend')
+	_suspend $@
+	;;
+esac
+
