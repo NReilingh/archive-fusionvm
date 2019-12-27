@@ -8,7 +8,7 @@
 @teardown {
   rm tests/_support/decoy_file
   rm -r tests/_support/decoy_dir
-  [ -f tests/_support/out.dmg ] && rm tests/_support/out.dmg
+  [ -f tests/_support/out.dmg ] && rm tests/_support/out.dmg || true
 }
 
 @test 'Exit with error when no arguments are supplied' {
