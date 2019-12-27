@@ -4,6 +4,7 @@
   [ -f tests/_support/decoy_file ] || touch tests/_support/decoy_file
   [ -d tests/_support/decoy_dir ] || mkdir tests/_support/decoy_dir
   [ ! -f tests/_support/hdiutil.calls ] || rm tests/_support/hdiutil.calls
+  [ ! -f tests/_support/vmrun_list.calls ] || rm tests/_support/vmrun_list.calls
   [ ! -f tests/_support/vmrun_suspend.calls ] || rm tests/_support/vmrun_suspend.calls
 }
 
@@ -11,6 +12,7 @@
   rm tests/_support/decoy_file
   rm -r tests/_support/decoy_dir
   [ ! -f tests/_support/hdiutil.calls ] || rm tests/_support/hdiutil.calls
+  [ ! -f tests/_support/vmrun_list.calls ] || rm tests/_support/vmrun_list.calls
   [ ! -f tests/_support/vmrun_suspend.calls ] || rm tests/_support/vmrun_suspend.calls
 }
 
@@ -48,38 +50,65 @@
 }
 
 @test 'Running VMs inside path are passed to suspend command' {
-  vmone="$PWD/tests/support/decoy_dir/examplevmone.vmx"
-  vmtwo="$PWD/tests/support/decoy_dir/examplevmtwo.vmx"
-  # Mock vmrun list to output multiple paths
-  # Output three paths:
-  # $PWD/tests/support/decoy_dir/examplevmone.vmx
-  # $PWD/tests/support/decoy_dir/examplevmtwo.vmx
-  # $PWD/tests/support/some_other_dir/examplevm.vmx
-  #
-  # Above will be a here-string that goes to a file to be output by mock
-  #
-  # touch tests/_support/
+  vmone="$PWD/tests/_support/decoy_dir/examplevmone.vmx"
+  vmtwo="$PWD/tests/_support/decoy_dir/examplevmtwo.vmx"
+  bogusvm="$PWD/tests/_support/some_other_dir/examplevm.vmx"
 
-  run archive_vms.zsh tests/support/decoy_dir tests/_support/out.dmg
+  # This is the mock data that will be returned by `vmrun list`
+  cat > tests/_support/vmrun_list_1 <<-EOF
+	$vmone
+	$vmtwo
+	$bogusvm
+	EOF
 
-  # Expect vmrun suspend to receive examplevmone.vmx and examplevmtwo.vmx
-  # Mock vmrun suspend to record calls and arguments
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
 
+  # Suspend calls are logged to file; read as array.
   suspendout=(${(@f)"$(<tests/_support/vmrun_suspend.calls)"})
+
   assert $vmone in $suspendout
   assert $vmtwo in $suspendout
+  assert $bogusvm not_in $suspendout
 }
 
 @test 'Suspend command is not invoked if no VMs are running' {
-  skip 'Not implemented'
+  cat > tests/_support/vmrun_list_1 <<-EOF
+	EOF
+
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+
+  if [ -f tests/_support/vmrun_suspend.calls ]; then
+    fail 'vmrun suspend was called'
+  else
+    pass
+  fi
 }
 
 @test 'Suspend command is attempted up to three times' {
-  skip 'Not implemented'
+  cat > tests/_support/vmrun_list_1 <<-EOF
+  	$PWD/tests/_support/decoy_dir/examplevm.vmx
+	EOF
+  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_2
+  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_3
+
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+  
+  suspendcalls=(${(@f)"$(<tests/_support/vmrun_suspend.calls)"})
+
+  assert ${#suspendcalls} equals 3
 }
 
 @test 'Exit with failure if VMs are not suspended by fourth attempt' {
-  skip 'Not implemented'
+  cat > tests/_support/vmrun_list_1 <<-EOF
+  	$PWD/tests/_support/decoy_dir/examplevm.vmx
+	EOF
+  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_2
+  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_3
+  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_4
+
+  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+
+  assert $state equals 4
 }
 
 @test 'hdiutil create is executed' {
@@ -94,6 +123,7 @@
 
   run archive_vms.zsh $arg1 $arg2
 
+  # hdiutil mock outputs calls to file; read args as array
   hdiutilout=(${(@f)"$(<tests/_support/hdiutil.calls)"})
 
   assert $arg1 in $hdiutilout

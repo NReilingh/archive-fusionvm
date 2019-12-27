@@ -3,6 +3,8 @@
 subcmd=$1; shift
 
 _list() {
+	print -l $@ >> tests/_support/vmrun_list.calls
+
 	# Mock data files in the support directory are output in sequence.
 	for file in tests/_support/vmrun_list_*(.); do
 		if [[ -v previous ]]; then
