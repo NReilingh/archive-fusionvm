@@ -31,6 +31,6 @@ jobs:
         with:
           formula-name: archive-fusionvm
           homebrew-tap: nreilingh/nreilingh
-          download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/$GITHUB_REF/archive-fusionvm.tar.gz
+          download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/${{ github.ref }}/archive-fusionvm.tar.gz
         env:
           COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
