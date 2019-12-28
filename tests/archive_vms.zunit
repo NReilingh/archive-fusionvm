@@ -1,19 +1,14 @@
 #!/usr/bin/env zunit
 
+# $TEMP is set up in bootstrap
 @setup {
-  [ -f tests/_support/decoy_file ] || touch tests/_support/decoy_file
-  [ -d tests/_support/decoy_dir ] || mkdir tests/_support/decoy_dir
-  [ ! -f tests/_support/hdiutil.calls ] || rm tests/_support/hdiutil.calls
-  [ ! -f tests/_support/vmrun_list.calls ] || rm tests/_support/vmrun_list.calls
-  [ ! -f tests/_support/vmrun_suspend.calls ] || rm tests/_support/vmrun_suspend.calls
+  [ -d $TEMP ] || mkdir $TEMP
+  [ -f $TEMP/decoy_file ] || touch $TEMP/decoy_file
+  [ -d $TEMP/decoy_dir ] || mkdir $TEMP/decoy_dir
 }
 
 @teardown {
-  rm tests/_support/decoy_file
-  rm -r tests/_support/decoy_dir
-  [ ! -f tests/_support/hdiutil.calls ] || rm tests/_support/hdiutil.calls
-  [ ! -f tests/_support/vmrun_list.calls ] || rm tests/_support/vmrun_list.calls
-  [ ! -f tests/_support/vmrun_suspend.calls ] || rm tests/_support/vmrun_suspend.calls
+  rm -r $TEMP
 }
 
 @test 'Exit with error when no arguments are supplied' {
@@ -23,48 +18,49 @@
 }
 
 @test 'Exit with error when no second argument is supplied' {
-  run archive_vms.zsh tests/_support/decoy_dir
+  run archive_vms.zsh $TEMP/decoy_dir
 
   assert $state equals 3
 }
 
 @test 'Exit with error when first argument path does not exist' {
-  run archive_vms.zsh /zxcvbn/foo/bar/baz/bluth tests/_support/out.dmg
+  run archive_vms.zsh /zxcvbn/foo/bar/baz/bluth $TEMP/out.dmg
 
   assert $state equals 3
 }
 
 @test 'First argument relative path is expanded to absolute path' {
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+  # $RELTEMP is also set up in bootstrap
+  run archive_vms.zsh $RELTEMP/decoy_dir $TEMP/out.dmg
 
   # Filter run output to line that begins with SRCPATH.
   srcpath=(${(M)lines:#SRCPATH*})
 
-  assert $srcpath contains "$PWD/tests/_support/decoy_dir"
+  assert $srcpath contains "$TEMP/decoy_dir"
 }
 
 @test 'Exit with error when first argument path is a file' {
-  run archive_vms.zsh tests/_support/decoy_file tests/_support/out.dmg
+  run archive_vms.zsh $TEMP/decoy_file $TEMP/out.dmg
 
   assert $state equals 3
 }
 
 @test 'Running VMs inside path are passed to suspend command' {
-  vmone="$PWD/tests/_support/decoy_dir/examplevmone.vmx"
-  vmtwo="$PWD/tests/_support/decoy_dir/examplevmtwo.vmx"
-  bogusvm="$PWD/tests/_support/some_other_dir/examplevm.vmx"
+  vmone="$TEMP/decoy_dir/examplevmone.vmx"
+  vmtwo="$TEMP/decoy_dir/examplevmtwo.vmx"
+  bogusvm="$TEMP/some_other_dir/examplevm.vmx"
 
   # This is the mock data that will be returned by `vmrun list`
-  cat > tests/_support/vmrun_list_1 <<-EOF
+  cat > $TEMP/vmrun_list_1 <<-EOF
 	$vmone
 	$vmtwo
 	$bogusvm
 	EOF
 
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
 
   # Suspend calls are logged to file; read as array.
-  suspendout=(${(@f)"$(<tests/_support/vmrun_suspend.calls)"})
+  suspendout=(${(@f)"$(<$TEMP/vmrun_suspend.calls)"})
 
   assert $vmone in $suspendout
   assert $vmtwo in $suspendout
@@ -72,12 +68,12 @@
 }
 
 @test 'Suspend command is not invoked if no VMs are running' {
-  cat > tests/_support/vmrun_list_1 <<-EOF
+  cat > $TEMP/vmrun_list_1 <<-EOF
 	EOF
 
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
 
-  if [ -f tests/_support/vmrun_suspend.calls ]; then
+  if [ -f $TEMP/vmrun_suspend.calls ]; then
     fail 'vmrun suspend was called'
   else
     pass
@@ -85,46 +81,48 @@
 }
 
 @test 'Suspend command is attempted up to three times' {
-  cat > tests/_support/vmrun_list_1 <<-EOF
-  	$PWD/tests/_support/decoy_dir/examplevm.vmx
+  tee $TEMP/vmrun_list_1 \
+      $TEMP/vmrun_list_2 \
+      $TEMP/vmrun_list_3 \
+      > /dev/null <<-EOF
+  	$TEMP/decoy_dir/examplevm.vmx
 	EOF
-  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_2
-  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_3
 
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
   
-  suspendcalls=(${(@f)"$(<tests/_support/vmrun_suspend.calls)"})
+  suspendcalls=(${(@f)"$(<$TEMP/vmrun_suspend.calls)"})
 
   assert ${#suspendcalls} equals 3
 }
 
 @test 'Exit with failure if VMs are not suspended by fourth attempt' {
-  cat > tests/_support/vmrun_list_1 <<-EOF
-  	$PWD/tests/_support/decoy_dir/examplevm.vmx
+  tee $TEMP/vmrun_list_1 \
+      $TEMP/vmrun_list_2 \
+      $TEMP/vmrun_list_3 \
+      $TEMP/vmrun_list_4 \
+      > /dev/null <<-EOF
+  	$TEMP/decoy_dir/examplevm.vmx
 	EOF
-  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_2
-  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_3
-  cp tests/_support/vmrun_list_1 tests/_support/vmrun_list_4
 
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
 
   assert $state equals 4
 }
 
 @test 'hdiutil create is executed' {
-  run archive_vms.zsh tests/_support/decoy_dir tests/_support/out.dmg
+  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
 
-  assert "$PWD/tests/_support/hdiutil.calls" exists
+  assert "$TEMP/hdiutil.calls" exists
 }
 
 @test 'hdiutil create is passed both input arguments' {
-  arg1=tests/_support/decoy_dir
-  arg2=tests/_support/out.dmg
+  arg1=$TEMP/decoy_dir
+  arg2=$TEMP/out.dmg
 
   run archive_vms.zsh $arg1 $arg2
 
   # hdiutil mock outputs calls to file; read args as array
-  hdiutilout=(${(@f)"$(<tests/_support/hdiutil.calls)"})
+  hdiutilout=(${(@f)"$(<$TEMP/hdiutil.calls)"})
 
   assert $arg1 in $hdiutilout
   assert $arg2 in $hdiutilout

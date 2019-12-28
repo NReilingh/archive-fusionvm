@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+print -l $@ > $TEMP/hdiutil.calls
+
+exit 0
