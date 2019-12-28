@@ -7,10 +7,12 @@ on:
 
 jobs:
   release:
-
+    name: Publish Release
     runs-on: ubuntu-latest
-
     steps:
+    - name: Get version slug
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
     - name: Checkout
       uses: actions/checkout@v1
     - name: Package
@@ -22,15 +24,12 @@ jobs:
         files: archive-fusionvm.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  homebrew:
-    name: Bump Homebrew formula
-    runs-on: ubuntu-latest
-    steps:
-      - uses: mislav/bump-homebrew-formula-action@v1.4
-        #if: "!contains(github.ref, '-')" # skip prereleases
-        with:
-          formula-name: archive-fusionvm
-          homebrew-tap: nreilingh/nreilingh
-          download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/${{ github.ref }}/archive-fusionvm.tar.gz
-        env:
-          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+    - name: Bump Homebrew formula
+      uses: mislav/bump-homebrew-formula-action@v1.4
+      #if: "!contains(github.ref, '-')" # skip prereleases
+      with:
+        formula-name: archive-fusionvm
+        homebrew-tap: nreilingh/nreilingh
+        download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/${{ steps.get_version.outputs.VERSION }}/archive-fusionvm.tar.gz
+      env:
+        COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
