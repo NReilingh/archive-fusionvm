@@ -1,9 +1,9 @@
 name: Release
 
 on:
-  create:
-    branches:
-    - master
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   release:
@@ -11,8 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v1
     - name: GitHub Release
-      uses: softprops/action-gh-release@v0.1.0
+      uses: softprops/action-gh-release@v1
       with:
         # Comma-delimited list of path globs for asset files to upload
         files: archive_vms.zsh
