@@ -16,7 +16,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Package
-      run: tar -cvzf archive-fusionvm-${{ steps.get_version.outputs.VERSION }}.tar.gz archive_vms.zsh
+      run: tar -cvzf archive-fusionvm-${{ steps.get_version.outputs.VERSION }}.tar.gz archive_fusionvm
     - name: GitHub Release
       uses: softprops/action-gh-release@v1
       with:

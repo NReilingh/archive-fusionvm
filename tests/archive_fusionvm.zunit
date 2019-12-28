@@ -12,26 +12,26 @@
 }
 
 @test 'Exit with error when no arguments are supplied' {
-  run archive_vms.zsh
+  run archive_fusionvm
 
   assert $state equals 3
 }
 
 @test 'Exit with error when no second argument is supplied' {
-  run archive_vms.zsh $TEMP/decoy_dir
+  run archive_fusionvm $TEMP/decoy_dir
 
   assert $state equals 3
 }
 
 @test 'Exit with error when first argument path does not exist' {
-  run archive_vms.zsh /zxcvbn/foo/bar/baz/bluth $TEMP/out.dmg
+  run archive_fusionvm /zxcvbn/foo/bar/baz/bluth $TEMP/out.dmg
 
   assert $state equals 3
 }
 
 @test 'First argument relative path is expanded to absolute path' {
   # $RELTEMP is also set up in bootstrap
-  run archive_vms.zsh $RELTEMP/decoy_dir $TEMP/out.dmg
+  run archive_fusionvm $RELTEMP/decoy_dir $TEMP/out.dmg
 
   # Filter run output to line that begins with SRCPATH.
   srcpath=(${(M)lines:#SRCPATH*})
@@ -40,7 +40,7 @@
 }
 
 @test 'Exit with error when first argument path is a file' {
-  run archive_vms.zsh $TEMP/decoy_file $TEMP/out.dmg
+  run archive_fusionvm $TEMP/decoy_file $TEMP/out.dmg
 
   assert $state equals 3
 }
@@ -57,7 +57,7 @@
 	$bogusvm
 	EOF
 
-  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
 
   # Suspend calls are logged to file; read as array.
   suspendout=(${(@f)"$(<$TEMP/vmrun_suspend.calls)"})
@@ -71,7 +71,7 @@
   cat > $TEMP/vmrun_list_1 <<-EOF
 	EOF
 
-  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
 
   if [ -f $TEMP/vmrun_suspend.calls ]; then
     fail 'vmrun suspend was called'
@@ -88,7 +88,7 @@
   	$TEMP/decoy_dir/examplevm.vmx
 	EOF
 
-  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
   
   suspendcalls=(${(@f)"$(<$TEMP/vmrun_suspend.calls)"})
 
@@ -104,7 +104,7 @@
   	$TEMP/decoy_dir/examplevm.vmx
 	EOF
 
-  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
 
   assert $state equals 4
   if [ -f $TEMP/hdiutil.calls ]; then
@@ -115,7 +115,7 @@
 }
 
 @test 'hdiutil create is executed' {
-  run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
 
   assert "$TEMP/hdiutil.calls" exists
 }
@@ -124,7 +124,7 @@
   arg1=$TEMP/decoy_dir
   arg2=$TEMP/out.dmg
 
-  run archive_vms.zsh $arg1 $arg2
+  run archive_fusionvm $arg1 $arg2
 
   # hdiutil mock outputs calls to file; read args as array
   hdiutilout=(${(@f)"$(<$TEMP/hdiutil.calls)"})
