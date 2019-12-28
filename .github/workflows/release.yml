@@ -13,10 +13,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
+    - name: Package
+      run: tar -cvzf archive-fusionvm.tar.gz archive_vms.zsh
     - name: GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         # Comma-delimited list of path globs for asset files to upload
-        files: archive_vms.zsh
+        files: archive-fusionvm.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
