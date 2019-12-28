@@ -16,12 +16,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
     - name: Package
-      run: tar -cvzf archive-fusionvm.tar.gz archive_vms.zsh
+      run: tar -cvzf archive-fusionvm-${{ steps.get_version.outputs.VERSION }}.tar.gz archive_vms.zsh
     - name: GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         # Comma-delimited list of path globs for asset files to upload
-        files: archive-fusionvm.tar.gz
+        files: archive-fusionvm-${{ steps.get_version.outputs.VERSION }}.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Bump Homebrew formula
@@ -30,6 +30,6 @@ jobs:
       with:
         formula-name: archive-fusionvm
         homebrew-tap: nreilingh/homebrew-nreilingh
-        download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/${{ steps.get_version.outputs.VERSION }}/archive-fusionvm.tar.gz
+        download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/${{ steps.get_version.outputs.VERSION }}/archive-fusionvm-${{ steps.get_version.outputs.VERSION }}.tar.gz
       env:
         COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
