@@ -3,10 +3,10 @@
 subcmd=$1; shift
 
 _list() {
-	print -l $@ >> tests/_support/vmrun_list.calls
+	print -l $@ >> $TEMP/vmrun_list.calls
 
 	# Mock data files in the support directory are output in sequence.
-	for file in tests/_support/vmrun_list_*(.); do
+	for file in $TEMP/vmrun_list_*(.); do
 		if [[ -v previous ]]; then
 			mv $file $previous
 		else
@@ -18,7 +18,7 @@ _list() {
 }
 
 _suspend() {
-	print -l $@ >> tests/_support/vmrun_suspend.calls
+	print -l $@ >> $TEMP/vmrun_suspend.calls
 }
 
 case $subcmd in

@@ -1,8 +1,12 @@
 #!/usr/bin/env zsh
 
-# Add project dir to PATH so we can easily run commands.
+# Add project dir to PATH so we can easily run the script being tested.
 export PATH="$PWD:$PATH"
 
-# Add _support dir to PATH for mocks and shit.
-export PATH="$PWD/tests/_support:$PATH"
+# Add mocks dir to PATH
+export PATH="$PWD/tests/_support/mocks:$PATH"
+
+# Export an environment variable for temp files.
+export RELTEMP="tests/_support/temp"
+export TEMP="$PWD/$RELTEMP"
 
