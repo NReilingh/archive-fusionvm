@@ -107,6 +107,11 @@
   run archive_vms.zsh $TEMP/decoy_dir $TEMP/out.dmg
 
   assert $state equals 4
+  if [ -f $TEMP/hdiutil.calls ]; then
+    fail 'hdiutil was called'
+  else
+    pass
+  fi
 }
 
 @test 'hdiutil create is executed' {
