@@ -29,7 +29,7 @@ jobs:
       #if: "!contains(github.ref, '-')" # skip prereleases
       with:
         formula-name: archive-fusionvm
-        homebrew-tap: nreilingh/nreilingh
+        homebrew-tap: nreilingh/homebrew-nreilingh
         download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/${{ steps.get_version.outputs.VERSION }}/archive-fusionvm.tar.gz
       env:
         COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
