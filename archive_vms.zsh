@@ -21,7 +21,7 @@ i=0
 
 while true; do
 	# Test whether running .vmx files are inside our path.
-	running=$(vmrun list | grep "$SRCPATH")
+	running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
 
 	echo "Current running VM list is $running"
 
@@ -36,13 +36,10 @@ while true; do
 
 	echo "Attempting to suspend VMs"
 
-	xIFS=$IFS
-	IFS=$'\n'
 	for vmx in $running; do
 		echo "Suspending $vmx"
 		vmrun suspend "$vmx"
 	done
-	IFS=$xIFS
 done
 
 # Create a compressed read-only .dmg. HFS+ seems to be smaller than APFS.

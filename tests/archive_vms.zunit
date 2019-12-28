@@ -46,7 +46,7 @@
 }
 
 @test 'Running VMs inside path are passed to suspend command' {
-  vmone="$TEMP/decoy_dir/examplevmone.vmx"
+  vmone="$TEMP/decoy_dir/examplevm one.vmx"
   vmtwo="$TEMP/decoy_dir/examplevmtwo.vmx"
   bogusvm="$TEMP/some_other_dir/examplevm.vmx"
 
