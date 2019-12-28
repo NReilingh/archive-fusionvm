@@ -22,3 +22,15 @@ jobs:
         files: archive-fusionvm.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  homebrew:
+    name: Bump Homebrew formula
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v1.4
+        #if: "!contains(github.ref, '-')" # skip prereleases
+        with:
+          formula-name: archive-fusionvm
+          homebrew-tap: nreilingh/nreilingh
+          download-url: https://github.com/NReilingh/archive-fusionvm/releases/download/$GITHUB_REF/archive-fusionvm.tar.gz
+        env:
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
