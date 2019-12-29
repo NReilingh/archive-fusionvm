@@ -25,7 +25,7 @@ jobs:
         asset_content_type: application/gzip
     - name: Bump Homebrew formula
       uses: mislav/bump-homebrew-formula-action@v1.4
-      if: !github.event.release.prerelease
+      if: github.event.release.prerelease == 'false'
       with:
         formula-name: archive-fusionvm
         homebrew-tap: nreilingh/homebrew-nreilingh
