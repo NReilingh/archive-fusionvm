@@ -1,0 +1,22 @@
+name: Unit Testing
+
+on: [push, pull_request]    
+
+jobs:
+  test:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install ZUnit
+      run: brew install zunit
+    - name: Run ZUnit
+      run: zunit --output-html
+    - name: Store test results as artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: ZUnit Results
+        # Directory containing files to upload
+        path: tests/_output/output.html
