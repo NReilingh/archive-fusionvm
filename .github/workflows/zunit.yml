@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install ZUnit
-      run: brew install zunit
+      run: brew install zunit-zsh/zunit/zunit
     - name: Run ZUnit
       run: zunit --output-html
     - name: Store test results as artifact
