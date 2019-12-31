@@ -9,14 +9,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Install ZUnit
-      run: brew install zunit-zsh/zunit/zunit
+    - run: brew install zunit-zsh/zunit/zunit
     - name: Run ZUnit
-      run: zunit --output-html
+      run: zunit -t --output-html --output-text
     - name: Store test results as artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        # Artifact name
         name: ZUnit Results
-        # Directory containing files to upload
-        path: tests/_output/output.html
+        path: tests/_output
