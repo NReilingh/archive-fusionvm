@@ -9,6 +9,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      if: always() # Prevent suppresion of cleanup in the event of a test failure.
     - run: brew install zunit-zsh/zunit/zunit
     - name: Run ZUnit
       run: zunit -t --output-html --output-text
