@@ -14,6 +14,7 @@ jobs:
       run: zunit -t --output-html --output-text
     - name: Store test results as artifact
       uses: actions/upload-artifact@v1.0.0
+      if: always() # Prevent suppression in the event of a test failure.
       with:
         name: ZUnit Results
         path: tests/_output

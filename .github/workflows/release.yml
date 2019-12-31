@@ -26,9 +26,9 @@ jobs:
     - name: Bump Homebrew formula
       uses: mislav/bump-homebrew-formula-action@v1.4
       if: (!github.event.release.prerelease)
+      env:
+        COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
       with:
         formula-name: archive-fusionvm
         homebrew-tap: nreilingh/homebrew-nreilingh
         download-url: ${{ steps.upload_release_asset.outputs.browser_download_url }}
-      env:
-        COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
