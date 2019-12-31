@@ -1,5 +1,0 @@
-#!/usr/bin/env zunit
-
-@test 'Failing tests' {
-    fail 'test must fail'
-}
