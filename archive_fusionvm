@@ -49,7 +49,7 @@ while true; do
 done
 
 # Test that every VMX in the list has no lockfile; otherwise quit Fusion
-if [false]; then
+if false; then
 	osascript -e 'tell application "VMware Fusion to quit'
 fi
 
