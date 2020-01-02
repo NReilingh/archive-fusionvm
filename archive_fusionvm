@@ -19,10 +19,13 @@ echo "SRCPATH is $SRCPATH"
 
 i=0
 
-while true; do
-	# Test whether running .vmx files are inside our path.
-	running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
+# Test whether running .vmx files are inside our path.
+running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
 
+# Save this initial list of .vmx files
+vmxlist=$running
+
+while true; do
 	echo "Current running VM list is $running"
 
 	# If no VMs are running, we can continue.
@@ -40,7 +43,15 @@ while true; do
 		echo "Suspending $vmx"
 		vmrun suspend "$vmx"
 	done
+
+	# Refresh running VM list
+	running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
 done
+
+# Test that every VMX in the list has no lockfile; otherwise quit Fusion
+if [false]; then
+	osascript -e 'tell application "VMware Fusion to quit'
+fi
 
 # Create a compressed read-only .dmg. HFS+ seems to be smaller than APFS.
 echo "Creating disk image"
