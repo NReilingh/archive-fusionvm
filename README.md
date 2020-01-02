@@ -13,6 +13,9 @@ that suspends and archives a folder of VMs to dmg.
 
 ## Contributing
 
-This code has unit tests! Get ZUnit with `brew install zunit`
+This code has unit tests! Get ZUnit with
+
+    brew install zunit-zsh/zunit/zunit`
+
 and then run `zunit` in the project directory to test.
 
