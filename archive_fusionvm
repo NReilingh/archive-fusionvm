@@ -49,9 +49,12 @@ while true; do
 done
 
 # Test that every VMX in the list has no lockfile; otherwise quit Fusion
-if false; then
-	osascript -e 'tell application "VMware Fusion to quit'
-fi
+for vmx in $vmxlist; do
+	if [ -f "$vmx.lck" ]; then
+		osascript -e 'tell application "VMware Fusion" to quit'
+		break
+	fi
+done
 
 # Create a compressed read-only .dmg. HFS+ seems to be smaller than APFS.
 echo "Creating disk image"
