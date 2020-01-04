@@ -17,13 +17,19 @@ SRCPATH=$(cd "$1"; pwd)
 
 echo "SRCPATH is $SRCPATH"
 
-i=0
+running=()
 
 # Test whether running .vmx files are inside our path.
-running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
+refresh_running() {
+	running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
+}
+
+refresh_running
 
 # Save this initial list of .vmx files
 vmxlist=($running)
+
+i=0
 
 while true; do
 	echo "Current running VM list is $running"
@@ -44,8 +50,7 @@ while true; do
 		vmrun suspend "$vmx"
 	done
 
-	# Refresh running VM list
-	running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
+	refresh_running
 done
 
 # Test that every VMX in the list has no lockfile; otherwise quit Fusion
