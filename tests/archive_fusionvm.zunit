@@ -2,7 +2,7 @@
 
 # $TEMP is set up in bootstrap
 @setup {
-  rm -r $TEMP && mkdir $TEMP
+  [ ! -d $TEMP ] || rm -r $TEMP; mkdir $TEMP
   [ -f $TEMP/decoy_file ] || touch $TEMP/decoy_file
   [ -d $TEMP/decoy_dir ] || mkdir $TEMP/decoy_dir
 }
