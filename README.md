@@ -5,7 +5,7 @@ that suspends and archives a folder of VMs to dmg.
 
 ## Installation
 
-    brew install nreilingh/nreilingh/archive-fusionvm
+    brew install nreilingh/tap/archive-fusionvm
 
 ## Usage
 
