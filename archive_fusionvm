@@ -23,7 +23,7 @@ i=0
 running=(${(@f)"$(vmrun list | grep "$SRCPATH")"})
 
 # Save this initial list of .vmx files
-vmxlist=$running
+vmxlist=($running)
 
 while true; do
 	echo "Current running VM list is $running"
@@ -49,7 +49,9 @@ while true; do
 done
 
 # Test that every VMX in the list has no lockfile; otherwise quit Fusion
+echo "Checking for lockfiles for VM list $vmxlist"
 for vmx in $vmxlist; do
+	echo "Testing lockfile $vmx.lck"
 	if [ -f "$vmx.lck" ]; then
 		osascript -e 'tell application "VMware Fusion" to quit'
 		break

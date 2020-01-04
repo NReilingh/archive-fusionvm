@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+echo "$@" >> $TEMP/osascript.calls
+
+exit 0

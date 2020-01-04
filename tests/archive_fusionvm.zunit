@@ -2,13 +2,9 @@
 
 # $TEMP is set up in bootstrap
 @setup {
-  [ -d $TEMP ] || mkdir $TEMP
+  rm -r $TEMP && mkdir $TEMP
   [ -f $TEMP/decoy_file ] || touch $TEMP/decoy_file
   [ -d $TEMP/decoy_dir ] || mkdir $TEMP/decoy_dir
-}
-
-@teardown {
-  rm -r $TEMP
 }
 
 @test 'Exit with error when no arguments are supplied' {
@@ -112,6 +108,57 @@
   else
     pass
   fi
+}
+
+@test 'osascript executed when lockfile exists' {
+  vmx="$TEMP/decoy_dir/example vm.vmx"
+
+  cat > $TEMP/vmrun_list_1 <<-EOF
+	$vmx
+	EOF
+
+  touch "$vmx.lck"
+
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
+
+  if [ -f $TEMP/osascript.calls ]; then
+    pass
+  else
+    fail 'osascript was not called'
+  fi
+}
+
+@test 'osascript is not executed if no lockfiles exist' {
+  cat > $TEMP/vmrun_list_1 <<-EOF
+	$TEMP/decoy_dir/example vm.vmx
+	EOF
+
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
+
+  if [ -f $TEMP/osascript.calls ]; then
+    fail 'osascript was called'
+  else
+    pass
+  fi
+}
+
+@test 'osascript is executed only once if multiple lockfiles exist' {
+  vmone="$TEMP/decoy_dir/examplevm one.vmx"
+  vmtwo="$TEMP/decoy_dir/examplevmtwo.vmx"
+
+  cat > $TEMP/vmrun_list_1 <<-EOF
+	$vmone
+	$vmtwo
+	EOF
+
+  touch "$vmone.lck"
+  touch "$vmtwo.lck"
+
+  run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
+
+  osascriptcalls=(${(@f)"$(<$TEMP/osascript.calls)"})
+
+  assert ${#osascriptcalls} equals 1
 }
 
 @test 'hdiutil create is executed' {
