@@ -1,2 +1,3 @@
+/tests/_support/temp/*
 /tests/_output/*
 !/tests/_output/.gitkeep
