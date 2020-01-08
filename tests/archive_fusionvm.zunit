@@ -117,7 +117,7 @@
 	$vmx
 	EOF
 
-  touch "$vmx.lck"
+  mkdir "$vmx.lck"
 
   run archive_fusionvm $TEMP/decoy_dir $TEMP/out.dmg
 
